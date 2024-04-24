@@ -17,6 +17,11 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 +!start : true <-
 	.print("Hello world").
 
++new_organization(OrgName) : true <- // the agent is informed about a new organization
+	.print("New Organization called: ", OrgName);
+	// join the workspace
+	joinWorkspace(OrgName).
+
 /* 
  * Plan for reacting to the addition of the goal !manifest_temperature
  * Triggering event: addition of goal !manifest_temperature
