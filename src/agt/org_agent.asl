@@ -23,7 +23,7 @@ sch_name("monitoring_scheme"). // the agent beliefs that it can manage schemes w
   joinWorkspace(OrgName, WrkSpc);
   
   // create organization artifact
-  makeArtifact("lab_monitoring_team","ora4mas.nopl.OrgBoard",["src/org/org-spec.xml"], OrgArtId);
+  makeArtifact("lab_monitoring_org","ora4mas.nopl.OrgBoard",["src/org/org-spec.xml"], OrgArtId);
   focus(OrgArtId);
   createGroup("monitoring_team",monitoring_team, GrpArtId);
   createScheme("monitoring_scheme",monitoring_scheme, SchArtId);

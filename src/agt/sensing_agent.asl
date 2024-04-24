@@ -16,6 +16,13 @@
 +!start : true <-
 	.print("Hello world").
 
+
++new_organization(OrgName) : true <- // the agent is informed about a new organization
+	.print("New Organization called: ", OrgName);
+	// join the workspace
+	joinWorkspace(OrgName);
+	lookupArtifact(OrgName,Id);
+	focus(Id).
 /* 
  * Plan for reacting to the addition of the goal !read_temperature
  * Triggering event: addition of goal !read_temperature
