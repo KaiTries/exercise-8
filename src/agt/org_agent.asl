@@ -23,11 +23,12 @@ sch_name("monitoring_scheme"). // the agent beliefs that it can manage schemes w
   joinWorkspace(OrgName, WrkSpc);
   
   // create organization artifact
-  makeArtifact("lab_monitoring_org","ora4mas.nopl.OrgBoard",["src/org/org-spec.xml"], OrgArtId);
-  focus(OrgArtId);
-  createGroup("monitoring_team",monitoring_team, GrpArtId);
-  createScheme("monitoring_scheme",monitoring_scheme, SchArtId);
-  .broadcast(tell,new_organization(OrgName)).
+  makeArtifact(OrgName,"ora4mas.nopl.OrgBoard",["src/org/org-spec.xml"], OrgArtId)[wid(WrkSpc)];
+  focus(OrgArtId)[wid(WrkSpc)];
+  createGroup(GroupName,monitoring_team, GrpArtId)[wid(WrkSpc)];
+  createScheme(SchemeName,monitoring_scheme, SchArtId)[wid(WrkSpc)];
+  .broadcast(tell,new_organization(OrgName));
+  !inspect(OrgArtId)[wid(WrkSpc)].
 /* 
  * Plan for reacting to the addition of the test-goal ?formationStatus(ok)
  * Triggering event: addition of goal ?formationStatus(ok)
