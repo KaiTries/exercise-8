@@ -23,6 +23,19 @@
 	joinWorkspace(OrgName);
 	lookupArtifact(OrgName,Id);
 	focus(Id).
+
++group(GroupId, GroupType, ArtId) : true <-
+	.print("New Group called: ", GroupId, " of type: ", GroupType, " in organization: ", ArtId);
+	lookupArtifact(GroupType,Id);
+	focus(Id);
+	adoptRole("temperature_reader").
+
++scheme(SchemeId, SchemeType, ArtId) : true <-
+	.print("New Scheme called: ", SchemeId, " of type: ", SchemeType, " in organization: ", ArtId);
+	lookupArtifact(SchemeType,Id);
+	focus(Id).
+
+
 /* 
  * Plan for reacting to the addition of the goal !read_temperature
  * Triggering event: addition of goal !read_temperature
