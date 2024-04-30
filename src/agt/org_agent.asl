@@ -51,7 +51,7 @@ not_enough_players_for(R) :-
 @test_formation_status_is_ok_plan
 +?formationStatus(ok)[artifact_id(G)] : group(GroupName,_,G)[artifact_id(OrgName)] <-
   .print("Waiting for group ", GroupName," to become well-formed");
-  .wait(5000);
+  .wait(15000);
   !proactive_action(GroupName);
   ?formationStatus(ok)[artifact_id(GroupArtId)].
 
