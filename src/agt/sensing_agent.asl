@@ -3,6 +3,7 @@
 
 /* Initial beliefs and rules */
 
+
 /* Initial goals */
 !start. // the agent has the goal to start
 
@@ -27,15 +28,28 @@
 +group(GroupId, GroupType, ArtId) : true <-
 	.print("New Group called: ", GroupId, " of type: ", GroupType, " in organization: ", ArtId);
 	lookupArtifact(GroupType,Id);
-	focus(Id);
-	adoptRole("temperature_reader").
+	focus(Id).
 
 +scheme(SchemeId, SchemeType, ArtId) : true <-
 	.print("New Scheme called: ", SchemeId, " of type: ", SchemeType, " in organization: ", ArtId);
 	lookupArtifact(SchemeType,Id);
 	focus(Id).
 
+// when joining an organization we are informed about the different goal states
+// we check if for the given goalState we have the Plan that is required for it
++goalState(Scheme, Goal, Person1, Person2, waiting) : true <-
+	.relevant_plans({+!Goal}, LP);
+	!find_role_for_goal(Goal, LP).
 
+// if we have a plan that is required for the goal, then we find the corresponding Role for the plan
+// we do this by getting the mission corresponding to the goal and the Role for the mission
++!find_role_for_goal(Goal, LP) : LP \== [] & mission_goal(MT,Goal) & role_mission(Role,S,MT) <-
+	.print("Adopting Role: ", Role);
+	adoptRole(Role).
+
+
++!find_role_for_goal(Goal, LP) : LP == [] <- 
+	.print("No plans for this role").
 /* 
  * Plan for reacting to the addition of the goal !read_temperature
  * Triggering event: addition of goal !read_temperature

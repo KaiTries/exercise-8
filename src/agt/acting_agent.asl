@@ -7,6 +7,16 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 /* Initial goals */
 !start. // the agent has the goal to start
 
+role_goal(R, G) :-
+   role_mission(R, _, M) & mission_goal(M, G).
+
+can_achieve(G) :-
+   .relevant_plans({+!G[scheme(_)]}, LP) & LP \== [].
+
+i_have_plan_for_role(R) :-
+   not (role_goal(R, G) & not can_achieve(G)).
+
+
 /* 
  * Plan for reacting to the addition of the goal !start
  * Triggering event: addition of goal !start
@@ -17,6 +27,19 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 +!start : true <-
 	.print("Hello world").
 
+
+
+@ask_fulfill_role_plan
++ask_fulfill_role(Role, GroupName, OrgName) : i_have_plan_for_role(Role) <-
+	.print("I have a plan for the role: ", Role);
+	joinWorkspace(OrgName);
+	lookupArtifact(OrgName, OrgArtId);
+	focus(OrgArtId);
+	lookupArtifact(GroupName, GroupArtId);
+	focus(GroupArtId);
+	adoptRole(Role).
+
+/* PRE Task 2.2 
 +new_organization(OrgName) : true <- // the agent is informed about a new organization
 	.print("New Organization called: ", OrgName);
 	// join the workspace
@@ -27,13 +50,26 @@ robot_td("https://raw.githubusercontent.com/Interactions-HSG/example-tds/main/td
 +group(GroupId, GroupType, ArtId) : true <-
 	.print("New Group called: ", GroupId, " of type: ", GroupType, " in organization: ", ArtId);
 	lookupArtifact(GroupType,Id);
-	focus(Id);
-	adoptRole("temperature_manifestor").
+	focus(Id).
 
 +scheme(SchemeId, SchemeType, ArtId) : true <-
 	.print("New Scheme called: ", SchemeId, " of type: ", SchemeType, " in organization: ", ArtId);
 	lookupArtifact(SchemeType,Id);
 	focus(Id).
+
++goalState(Scheme, Goal, Person1, Person2, waiting) : true <-
+	.relevant_plans({+!Goal}, LP);
+	!find_role_for_goal(Goal, LP).
+
++!find_role_for_goal(Goal, LP) : LP \== [] & mission_goal(MT,Goal) & role_mission(Role,S,MT) <-
+	.print("Adopting Role: ", Role);
+	adoptRole(Role).
+
+
++!find_role_for_goal(Goal, LP) : LP == [] <- 
+	.print("No plans for this role").
+*/
+
 
 /* 
  * Plan for reacting to the addition of the goal !manifest_temperature

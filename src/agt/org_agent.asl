@@ -5,6 +5,12 @@ org_name("lab_monitoring_org"). // the agent beliefs that it can manage organiza
 group_name("monitoring_team"). // the agent beliefs that it can manage groups with the id "monitoring_team"
 sch_name("monitoring_scheme"). // the agent beliefs that it can manage schemes with the id "monitoring_scheme"
 
+not_enough_players_for(R) :-
+  role_cardinality(R,Min,Max) &
+  .count(play(_,R,_),NP) &
+  NP < Min.
+
+
 /* Initial goals */
 !start. // the agent has the goal to start
 
@@ -32,7 +38,8 @@ sch_name("monitoring_scheme"). // the agent beliefs that it can manage schemes w
   focus(SchArtId)[wid(WrkSpc)];
   .broadcast(tell,new_organization(OrgName));
   !inspect(GrpArtId)[wid(WrkSpc)];
-  !inspect(SchArtId)[wid(WrkSpc)].
+  !inspect(SchArtId)[wid(WrkSpc)];
+  ?formationStatus(ok)[artifact_id(GroupArtId)].
 
 /* 
  * Plan for reacting to the addition of the test-goal ?formationStatus(ok)
@@ -44,11 +51,37 @@ sch_name("monitoring_scheme"). // the agent beliefs that it can manage schemes w
 @test_formation_status_is_ok_plan
 +?formationStatus(ok)[artifact_id(G)] : group(GroupName,_,G)[artifact_id(OrgName)] <-
   .print("Waiting for group ", GroupName," to become well-formed");
-  .wait({+formationStatus(ok)[artifact_id(G)]}). // waits until the belief is added in the belief base
+  .wait(5000);
+  !proactive_action(GroupName);
+  ?formationStatus(ok)[artifact_id(GroupArtId)].
+
 
 +formationStatus(ok)[artifact_id(G)] : group(GroupName,_,G)[artifact_id(OrgName)]  & schemaId(Id) <-
   .print("Group ", GroupName," is well-formed");
   addScheme(Id).
+
++!proactive_action(GroupName) : formationStatus(nok) & specification(group_specification(GroupName,ListOfRoles,_,_)) <-
+  !findRolesWithNotEnoughPlayers(ListOfRoles).
+
++!proactive_action(GroupName) : formationStatus(ok) & specification(group_specification(GroupName,ListOfRoles,_,_)) <-
+  ?formationStatus(ok)[artifact_id(GroupArtId)].
+
++!findRolesWithNotEnoughPlayers([]) : true <-
+  .print("done").
+
++!findRolesWithNotEnoughPlayers([Role |ListOfRoles]) : true <-
+  .print("Current Role: ", Role);
+  !check_role(Role);
+  !findRolesWithNotEnoughPlayers(ListOfRoles).
+
++!check_role(role(Role,_,_,_,_,_,_)) : not_enough_players_for(Role) & org_name(OrgName) & group_name(GroupName) <-
+    .print("Not enough players for role: ",Role);
+    .broadcast(tell, ask_fulfill_role(Role, GroupName, OrgName)).
+
++!check_role(Role) : true <-
+    .print("Enough players for role: ",Role).
+
+
 
 /* 
  * Plan for reacting to the addition of the goal !inspect(OrganizationalArtifactId)
